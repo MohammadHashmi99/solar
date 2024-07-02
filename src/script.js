@@ -19,17 +19,15 @@ document.addEventListener("DOMContentLoaded", async function () {
     };
 
     // login information
-    var salt = "123456789";
-    var secret = "a66ee2473d32f177f7421c85426b33861efd1f93";
-    var token = "9783152367911fcfbb6574fe4faade391b60f8ae2225aae42a97b0ad06e4e0a6";
+    var loginInformation = GetLoginInformation();
 
     // calculate sign
-    var sign = await CalculateSign(salt, secret, token, staticQueryStringObject);
+    var sign = await CalculateSign(loginInformation.salt, loginInformation.secret, loginInformation.token, staticQueryStringObject);
 
     // sign + salt + token
     variableQueryStringObject.sign = sign;
-    variableQueryStringObject.salt = salt;
-    variableQueryStringObject.token = token;
+    variableQueryStringObject.salt = loginInformation.salt;
+    variableQueryStringObject.token = loginInformation.token;
 
     // convert the objects to query string
     var variableQueryString = ConvertObjectToQueryString(variableQueryStringObject);
@@ -46,6 +44,15 @@ document.addEventListener("DOMContentLoaded", async function () {
     // Fetch for login
     // Fix HTML images icons...
 });
+
+function GetLoginInformation() {
+    var data = {
+        salt: "123456789",
+        secret: "a66ee2473d32f177f7421c85426b33861efd1f93",
+        token: "9783152367911fcfbb6574fe4faade391b60f8ae2225aae42a97b0ad06e4e0a6",
+    };
+    return data;
+}
 
 function GetDataInformation(link) {
     fetch(link)
