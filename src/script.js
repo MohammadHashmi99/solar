@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     };
 
     // login information
-    var loginInformation = GetLoginInformation();
+    var loginInformation = await GetLoginInformation();
 
     // calculate sign
     var sign = await CalculateSign(loginInformation.salt, loginInformation.secret, loginInformation.token, staticQueryStringObject);
@@ -41,17 +41,26 @@ document.addEventListener("DOMContentLoaded", async function () {
     // Tomorrow Github (DONE)
     // Send to Github (DONE)
     // Rechecking the code (DONE)
-    // Fetch for login
+    // Fetch for login (DONE)
+    // Store the token in local or session storage
+    // Request login only when token is expired
     // Fix HTML images icons...
 });
 
-function GetLoginInformation() {
-    var data = {
+async function GetLoginInformation() {
+    var loginURL =
+        "http://8.210.123.202/public/?sign=fd14f1abae92ace3d9cf8b9cc64fa96f52835107&salt=1719343193678&action=authSource&usr=solar+Hashmi&company-key=bnrl_frRFjEz8Mkn&i18n=en_US&lang=en_US&source=1&_app_client_=android&_app_id_=wifiapp.volfw.watchpower&_app_version_=1.4.0.2";
+
+    var response = await fetch(loginURL);
+    var data = await response.json();
+
+    var loginInformation = {
         salt: "123456789",
-        secret: "a66ee2473d32f177f7421c85426b33861efd1f93",
-        token: "9783152367911fcfbb6574fe4faade391b60f8ae2225aae42a97b0ad06e4e0a6",
+        secret: data.dat.secret,
+        token: data.dat.token,
     };
-    return data;
+
+    return loginInformation;
 }
 
 function GetDataInformation(link) {
