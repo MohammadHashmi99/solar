@@ -3,11 +3,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     if (storageLink) {
         await GetBatteryInformation(storageLink);
     } else {
-        var link = await CreateBatteryInformationLink();
-
-        localStorage.setItem("batteryInformationLink", link);
-
-        await GetBatteryInformation(link);
+        createAndFetchBatteryData();
     }
 
     // TODO:
@@ -16,10 +12,17 @@ document.addEventListener("DOMContentLoaded", async function () {
     // Rechecking the code (DONE)
     // Fetch for login (DONE)
     // Store the token in local or session storage (DONE)
-    // Request login only when token is expired
+    // Request login only when token is expired (DONE)
     // Fix HTML images icons...
 });
 
+async function createAndFetchBatteryData() {
+    var link = await CreateBatteryInformationLink();
+
+    localStorage.setItem("batteryInformationLink", link);
+
+    await GetBatteryInformation(link);
+}
 async function CreateBatteryInformationLink() {
     var url = "http://8.210.123.202/public/";
 
@@ -76,20 +79,27 @@ async function GetLoginInformation() {
     return loginInformation;
 }
 
+// {"err":4,"desc":"ERR_SIGN"}
 async function GetBatteryInformation(link) {
     try {
         var response = await fetch(link);
         var data = await response.json();
 
-        document.getElementById("batteryStatus").textContent = getStatusText(data.dat.status);
-        document.getElementById("date").textContent = data.dat.date;
-        data.dat.bt_status.forEach((item) => {
-            if (item.par === "bt_battery_capacity") {
-                document.getElementById("batteryCapacity").textContent = `${item.val} ${item.unit}`;
-            } else if (item.par === "battery_active_power") {
-                document.getElementById("activePower").textContent = `${item.val} ${item.unit}`;
-            }
-        });
+        if (data.err != 0 || data.desc != "ERR_NONE") {
+            console.log("there is an error");
+            localStorage.removeItem("batteryInformationLink");
+            createAndFetchBatteryData();
+        } else {
+            document.getElementById("batteryStatus").textContent = getStatusText(data.dat.status);
+            document.getElementById("date").textContent = data.dat.date;
+            data.dat.bt_status.forEach((item) => {
+                if (item.par === "bt_battery_capacity") {
+                    document.getElementById("batteryCapacity").textContent = `${item.val} ${item.unit}`;
+                } else if (item.par === "battery_active_power") {
+                    document.getElementById("activePower").textContent = `${item.val} ${item.unit}`;
+                }
+            });
+        }
     } catch (error) {
         console.error("Error fetching data:", error);
     }
